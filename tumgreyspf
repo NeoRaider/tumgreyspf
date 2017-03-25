@@ -28,8 +28,8 @@ tumgreyspfsupp.setExceptHook()
 def is_loopback(address):
     '''Return true if address is a loopback IP.'''
     if (
-            address in ['127.0.0.1', '::1']
-            or address.startswith('127.0.0.')
+            address in [u'127.0.0.1', u'::1']
+            or address.startswith(u'127.0.0.')
             ):
         return True
 
@@ -40,7 +40,7 @@ def is_loopback(address):
 
     if debugLevel >= 3:
         syslog.syslog('is_loopback: testing "%s"' % address )
-    loopback_cidrs = ['127.0.0.0/8', '::ffff:127.0.0.0/104', '::1/128']
+    loopback_cidrs = [u'127.0.0.0/8', u'::ffff:127.0.0.0/104', u'::1/128']
     compare = ipaddress.ip_interface(address.decode("utf-8")).network.overlaps
     for cidr in loopback_cidrs:
         if compare(ipaddress.ip_interface(cidr.decode("utf-8")).network):
@@ -57,7 +57,7 @@ def is_loopback(address):
 def spfcheck(data, configData, configGlobal):
     debugLevel = configGlobal.get('debugLevel', 0)
     queue_id = ('QUEUE_ID="%s"' % (data.get('queue_id', '<UNKNOWN>')))
-    ip = data.get('client_address')
+    ip = data.get('client_address').decode('latin1')
     if ip == None:
         if debugLevel:
             syslog.syslog('spfcheck: No client address, exiting')
@@ -380,14 +380,14 @@ def run_tests():
 
     class Tests(unittest.TestCase):
         def test_is_loopback(self):
-            self.assertEqual(is_loopback('10.1.1.1'), False)
-            self.assertEqual(is_loopback('127.0.0.1'), True)
-            self.assertEqual(is_loopback('::1'), True)
+            self.assertEqual(is_loopback(u'10.1.1.1'), False)
+            self.assertEqual(is_loopback(u'127.0.0.1'), True)
+            self.assertEqual(is_loopback(u'::1'), True)
 
             try:
                 import ipaddress
                 #  tests using ipaddress module (if available)
-                self.assertEqual(is_loopback('127.0.1.1'), True)
+                self.assertEqual(is_loopback(u'127.0.1.1'), True)
             except ImportError:
                 pass
 
